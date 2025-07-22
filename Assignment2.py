@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import kagglehub  
+from scipy.stats import pearsonr
 
 # Loading the dataset
 path = kagglehub.dataset_download("harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows")
@@ -114,3 +115,49 @@ plt.ylabel("IMDB Rating")
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
+
+# Applied Statistical Analysis
+# Make sure columns are numeric
+df["Gross"] = pd.to_numeric(df["Gross"], errors='coerce')
+df["No_of_Votes"] = pd.to_numeric(df["No_of_Votes"], errors='coerce')
+df["IMDB_Rating"] = pd.to_numeric(df["IMDB_Rating"], errors='coerce')
+
+# Drop rows with missing values in these columns to avoid skewing statistics
+df_stats = df.dropna(subset=["Gross", "No_of_Votes", "IMDB_Rating"])
+
+# Calculate descriptive statistics
+mean_values = df_stats[["Gross", "No_of_Votes", "IMDB_Rating"]].mean()
+median_values = df_stats[["Gross", "No_of_Votes", "IMDB_Rating"]].median()
+std_values = df_stats[["Gross", "No_of_Votes", "IMDB_Rating"]].std()
+
+# Present results
+print("Mean values:\n", mean_values)
+print("\nMedian values:\n", median_values)
+print("\nStandard Deviation values:\n", std_values)
+
+# Correlation Analysis
+corr_coef, p_value = pearsonr(df['Gross'], df['No_of_votes'])
+print(f"Correlation coefficient between Gross and Number of Votes: {corr_coef:.2f}")
+print(f"P-value: {p_value:.4f}")
+
+# Ensure Gross is numeric and drop missing values
+df_gross = df[["Gross"]].dropna()
+df_gross["Gross"] = pd.to_numeric(df_gross["Gross"], errors="coerce")
+
+# Calculate Q1 (25th percentile) and Q3 (75th percentile)
+Q1 = df_gross["Gross"].quantile(0.25)
+Q3 = df_gross["Gross"].quantile(0.75)
+
+# Calculate IQR
+IQR = Q3 - Q1
+
+# Define outlier boundaries
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+# Identify outliers
+outliers = df_gross[(df_gross["Gross"] < lower_bound) | (df_gross["Gross"] > upper_bound)]
+
+print(f"Lower Bound: {lower_bound}")
+print(f"Upper Bound: {upper_bound}")
+print(f"Number of outliers detected: {len(outliers)}")
