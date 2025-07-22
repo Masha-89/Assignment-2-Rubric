@@ -49,5 +49,68 @@ duplicate_rows["Released_Year"] = pd.to_numeric(duplicate_rows["Released_Year"],
 duplicate_rows["Decade"] = (duplicate_rows["Released_Year"] // 10 * 10).astype("Int64").astype(str) + "s"
 
 actor_columns = ["Star1", "Star2", "Star3", "Star4"]
-duplicate_rows["Lead_Actors"] = duplicate_rows[actor_columns].fillna("").astype(str).agg(", ".join, axis=1)
-duplicate_rows["Lead_Actors"] = duplicate_rows["Lead_Actors"].str.replace(r"(, )+", ", ", regex=True).str.strip(", ")
+duplicate_rows["Lead_Actors"] = duplicate_rows[actor_columns].fillna("").astype(str).agg(lambda row: ", ".join(row.astype(str)), axis=1)
+duplicate_rows["Lead_Actors"] = duplicate_rows["Lead_Actors"].astype(str).replace(r"(, )+", ", ", regex=True).str.strip(", ")
+# Display the cleaned DataFrame
+print(duplicate_rows.head())
+
+# Data Visualization
+
+df["IMDB_Rating"] = pd.to_numeric(df["IMDB_Rating"], errors="coerce")
+df["Meta_score"] = pd.to_numeric(df["Meta_score"], errors="coerce")
+
+# Plotting the distribution of IMDB Ratings
+plt.figure(figsize=(10, 6))
+sns.histplot(df["IMDB_Rating"], color="skyblue", label="IMDB Rating", bins=20, kde=True)
+sns.histplot(df["Meta_score"], color="orange", label="Meta Score", bins=20, kde=True)
+
+plt.title("Distribution of IMDB Ratings vs Meta Scores")
+plt.xlabel("Score")
+plt.ylabel("Frequency")
+plt.legend()
+plt.show()
+
+# Drop rows with missing Genre
+df = df.dropna(subset=["Genre"])
+
+# Explode genres into separate rows
+genre_series = df["Genre"].str.split(', ').explode()
+
+# Count top 10 genres
+top_genres = genre_series.value_counts().head(10)
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=top_genres.values, y=top_genres.index, palette="viridis")
+
+plt.title("Top 10 Genre Frequencies")
+plt.xlabel("Frequency")
+plt.ylabel("Genre")
+plt.tight_layout()
+plt.show()
+
+df = df.dropna(subset=["Gross", "No_of_Votes"])
+# Convert to numeric (remove commas and cast to int/float)
+df["Gross"] = df["Gross"].replace('[\$,]', '', regex=True).astype(float)
+df["No_of_Votes"] = pd.to_numeric(df["No_of_Votes"].astype(str).str.replace(',', ''), errors='coerce').fillna(0).astype(int)
+
+plt.title("Scatter Plot of Gross Revenue vs. Number of Votes")
+plt.xlabel("Number of Votes")
+plt.ylabel("Gross Revenue (in $)")
+plt.xscale("log")  # Optional: log scale for better distribution
+plt.yscale("log")  # Optional
+plt.tight_layout()
+plt.show()
+
+# Drop missing values in Certificate and IMDB_Rating
+df = df.dropna(subset=["Certificate", "IMDB_Rating"])
+
+df["IMDB_Rating"] = pd.to_numeric(df["IMDB_Rating"], errors="coerce")
+plt.figure(figsize=(12, 6))
+sns.boxplot(x="Certificate", y="IMDB_Rating", data=df, palette="Set2")
+
+plt.title("IMDB Rating by Certificate")
+plt.xlabel("Certificate")
+plt.ylabel("IMDB Rating")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()

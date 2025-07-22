@@ -1,0 +1,10 @@
+# Data Preprocessing Summary
+
+1. *Loaded the dataset** with `;` as the delimiter and skipped bad lines.
+2. *Removed rows with missing critical information**, such as title, year, rating, and actor data.
+3. *Dropped duplicate rows**, keeping the first occurrence.
+4. *Converted runtime** values like "142 min" to integers.
+5. *Extracted decade** from the release year (e.g., 1994 → "1990s").
+6. *Created a combined Lead_Actors column** by merging Star1–Star4.
+
+These steps helped standardize the data and make it ready for analysis.
