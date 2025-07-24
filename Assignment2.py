@@ -136,7 +136,7 @@ print("\nMedian values:\n", median_values)
 print("\nStandard Deviation values:\n", std_values)
 
 # Correlation Analysis
-corr_coef, p_value = pearsonr(df['Gross'], df['No_of_votes'])
+corr_coef, p_value = pearsonr(df['Gross'], df['No_of_Votes'])
 print(f"Correlation coefficient between Gross and Number of Votes: {corr_coef:.2f}")
 print(f"P-value: {p_value:.4f}")
 
@@ -161,3 +161,65 @@ outliers = df_gross[(df_gross["Gross"] < lower_bound) | (df_gross["Gross"] > upp
 print(f"Lower Bound: {lower_bound}")
 print(f"Upper Bound: {upper_bound}")
 print(f"Number of outliers detected: {len(outliers)}")
+
+# Directors with the highest average gross revenue
+
+# Convert Gross to numeric (remove commas or $ if needed)
+df["Gross"] = pd.to_numeric(df["Gross"], errors="coerce")
+
+avg_gross_by_director = df.groupby("Director")["Gross"].mean().sort_values(ascending=False)
+top_directors = avg_gross_by_director.head(10)
+print("Top 10 Directors by Average Gross Revenue:\n", top_directors)
+
+# plotting top 5 directors by gross 
+
+top_5_directors = avg_gross_by_director.head(5)
+
+plt.figure(figsize=(12, 6))
+sns.barplot(x=top_5_directors.index, y=top_5_directors.index, palette="viridis")
+plt.title("Top 5 Directors by Average Gross Revenue")
+plt.xlabel("Average Gross Revenue (USD)")
+plt.ylabel("Director")
+plt.tight_layout()
+plt.show()
+
+top_rated = df[df["IMDB_Rating"] > 8.5]
+top_star_counts = top_rated["Star1"].value_counts()
+top_star_counts.head(5)
+
+df["Actor_Pair"] = df["Star1"] + " & " + df["Star2"]
+actor_pair_gross = df.groupby("Actor_Pair")["Gross"].mean().sort_values(ascending=False)
+actor_pair_gross.head(5)
+
+top_5_pairs = actor_pair_gross.head(5)
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=top_5_pairs.values, y=top_5_pairs.index, palette="magma")
+plt.title("Top 5 Actor Pairs by Average Gross Revenue")
+plt.xlabel("Average Gross (USD)")
+plt.ylabel("Actor Pair")
+plt.tight_layout()
+plt.show()
+
+df_genre = df.copy()
+df_genre["Genre"] = df_genre["Genre"].str.split(", ")
+df_genre = df_genre.explode("Genre")
+
+genre_rating = df_genre.groupby("Genre")["IMDB_Rating"].mean().sort_values(ascending=False)
+
+genre_rating.head(10)
+
+pivot_table = df_genre.pivot_table(
+    index="Genre", 
+    values="IMDB_Rating", 
+    aggfunc="mean"
+).sort_values("IMDB_Rating", ascending=False)
+
+# Plot heatmap
+plt.figure(figsize=(10, 12))
+sns.heatmap(pivot_table, annot=True, cmap="YlGnBu", linewidths=0.5)
+plt.title("Average IMDB Rating by Genre", fontsize=14)
+plt.xlabel("IMDB Rating")
+plt.ylabel("Genre")
+plt.tight_layout()
+plt.show()
