@@ -176,7 +176,7 @@ print("Top 10 Directors by Average Gross Revenue:\n", top_directors)
 top_5_directors = avg_gross_by_director.head(5)
 
 plt.figure(figsize=(12, 6))
-sns.barplot(x=top_5_directors.index, y=top_5_directors.index, palette="viridis")
+sns.barplot(x=top_5_directors.values, y=top_5_directors.index, palette="viridis")
 plt.title("Top 5 Directors by Average Gross Revenue")
 plt.xlabel("Average Gross Revenue (USD)")
 plt.ylabel("Director")
@@ -186,6 +186,7 @@ plt.show()
 top_rated = df[df["IMDB_Rating"] > 8.5]
 top_star_counts = top_rated["Star1"].value_counts()
 top_star_counts.head(5)
+print("Top 5 Stars by Number of Appearances in Top Rated Movies:\n", top_star_counts.head(5))
 
 df["Actor_Pair"] = df["Star1"] + " & " + df["Star2"]
 actor_pair_gross = df.groupby("Actor_Pair")["Gross"].mean().sort_values(ascending=False)
@@ -223,3 +224,10 @@ plt.xlabel("IMDB Rating")
 plt.ylabel("Genre")
 plt.tight_layout()
 plt.show()
+
+# Save the cleaned DataFrame to a new CSV file
+df_cleaned.to_csv("cleaned_imdb_top_1000.csv", index=False)
+# Save the cleaned DataFrame to a new CSV file
+df.to_csv("final_imdb_top_1000.csv", index=False)
+# Save the cleaned DataFrame to a new CSV file
+duplicate_rows.to_csv("duplicate_rows_imdb_top_1000.csv", index=False) 
